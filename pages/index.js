@@ -4,38 +4,26 @@ import GameCardList from '../components/GameCardList'
 import { useRouter } from "next/router"
 import React, { useState } from "react"
 
-export const getServerSideProps = async ({ query }) => {
-  const page = query.page || 1
+const BASE_URL = `https://api.rawg.io/api/games?key=070ea00c7ee84dcbba2c14e7c7451e29`
 
-  const res = await fetch(`https://api.rawg.io/api/games?key=070ea00c7ee84dcbba2c14e7c7451e29&page=${page}&page_size=8`)
+export const getServerSideProps = async () => {
+  const res = await fetch(`${BASE_URL}&page_size=12`)
   const data = await res.json()
-
   return { props: { data } }
 }
 
 const Home = ({ data }) => {
   const router = useRouter()
+  const [games, setGames] = useState(data.results)
   const [page, setPage] = useState(parseInt(router.query.page) || 1);
 
-
-  // const getData = async () => {
-  //   console.log(page)
-  //   const res = await fetch(`https://api.rawg.io/api/games?key=070ea00c7ee84dcbba2c14e7c7451e29&page=${page}&page_size=8`)
-  //   const res2 = await res.json()
-  // }
-
-  const getData = () => {
+  const getData = async () => {
     const newPage = page + 1
     setPage(newPage)
 
-    // const query = router.query
-    // query.page = newPage
-    // router.push({
-    //   pathname: router.pathname,
-    //   query: query,
-    // })
-
-    router.push(`/?page=${newPage}`, undefined, { shallow: true });
+    const res = await fetch(`${BASE_URL}&page=${newPage}&page_size=12`)
+    const data = await res.json()
+    setGames([...games, ...data.results])
   }
 
   return (
@@ -45,18 +33,13 @@ const Home = ({ data }) => {
         <meta name="description" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      <header>
+
+      </header>
 
       <main className={styles.main}>
-        <GameCardList gamesData={data.results} getMoreGames={getData} />
+        <GameCardList games={games} getMoreGames={getData} />
       </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        > Powered by Wimmind</a>
-      </footer>
     </div>
   )
 }

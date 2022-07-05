@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-const StyledGameCard = styled.a.attrs({ className: 'user' })`
+const StyledGameCard = styled.a`
   display: flex;
   flex-direction: column;
   align-items: center;

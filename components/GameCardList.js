@@ -1,17 +1,14 @@
-import React, { useState, useEffect } from "react"
 import styled from 'styled-components'
 import GameCard from '../components/GameCard'
 import InfiniteScroll from "react-infinite-scroll-component"
 
-const GameCardList = ({ gamesData, getMoreGames }) => {
-  const [games, setGames] = useState([])
+const GameCardListWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+`
 
-  useEffect(() => {
-    if (gamesData) {
-      setGames([...games, ...gamesData])
-    }
-  }, [gamesData])
-
+const GameCardList = ({ games, getMoreGames }) => {
   return (
     <InfiniteScroll
       dataLength={games.length}
@@ -19,9 +16,12 @@ const GameCardList = ({ gamesData, getMoreGames }) => {
       hasMore={true}
       loader={<h4>Loading...</h4>}
     >
-      {!!games.length && games.map((item) => (
-        <GameCard {...item} key={item.id} />
-      ))}
+      <GameCardListWrapper >
+        {!!games.length && games.map((item) => (
+          <GameCard {...item} key={item.id} />
+        ))}
+      </GameCardListWrapper>
+
     </InfiniteScroll>
   )
 }
