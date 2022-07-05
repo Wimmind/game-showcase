@@ -1,27 +1,41 @@
 import Head from 'next/head'
-import Image from 'next/image'
 import styles from '../styles/Home.module.css'
-import { useEffect, useState } from "react"
+import GameCardList from '../components/GameCardList'
 import { useRouter } from "next/router"
-import InfiniteScroll from "react-infinite-scroll-component"
-import GameCard from '../components/GameCard'
+import React, { useState } from "react"
 
-const Home = () => {
-  const router = useRouter();
+export const getServerSideProps = async ({ query }) => {
+  const page = query.page || 1
+
+  const res = await fetch(`https://api.rawg.io/api/games?key=070ea00c7ee84dcbba2c14e7c7451e29&page=${page}&page_size=8`)
+  const data = await res.json()
+
+  return { props: { data } }
+}
+
+const Home = ({ data }) => {
+  const router = useRouter()
   const [page, setPage] = useState(parseInt(router.query.page) || 1);
-  const [data, setData] = useState([]);
-  console.log(data[0])
 
-  const getGames = async () => {
-    console.log(page)
-    const res = await fetch(`https://api.rawg.io/api/games?key=070ea00c7ee84dcbba2c14e7c7451e29&page=${page}&page_size=8`)
-    const res2 = await res.json()
-    setData([...data, ...res2.results])
-  }
 
-  const getNextGames = async () => {
-    setPage(page + 1)
-    await getGames()
+  // const getData = async () => {
+  //   console.log(page)
+  //   const res = await fetch(`https://api.rawg.io/api/games?key=070ea00c7ee84dcbba2c14e7c7451e29&page=${page}&page_size=8`)
+  //   const res2 = await res.json()
+  // }
+
+  const getData = () => {
+    const newPage = page + 1
+    setPage(newPage)
+
+    // const query = router.query
+    // query.page = newPage
+    // router.push({
+    //   pathname: router.pathname,
+    //   query: query,
+    // })
+
+    router.push(`/?page=${newPage}`, undefined, { shallow: true });
   }
 
   return (
@@ -33,17 +47,7 @@ const Home = () => {
       </Head>
 
       <main className={styles.main}>
-        <InfiniteScroll
-          dataLength={data.length * 20}
-          next={getNextGames}
-          hasMore={true}
-          loader={<h4>Loading...</h4>}
-        >
-          {data.map((item) => (
-            <GameCard {...item} key={item.id} />
-          ))}
-        </InfiniteScroll>
-
+        <GameCardList gamesData={data.results} getMoreGames={getData} />
       </main>
 
       <footer className={styles.footer}>
