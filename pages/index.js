@@ -1,47 +1,113 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
 import GameCardList from '../components/GameCardList'
-import { useRouter } from "next/router"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
+import styled from 'styled-components'
+import Select from 'react-select'
 
-const BASE_URL = `https://api.rawg.io/api/games?key=070ea00c7ee84dcbba2c14e7c7451e29`
+const BASE_URL_games = `https://api.rawg.io/api/games?key=070ea00c7ee84dcbba2c14e7c7451e29`
+const BASE_URL_platforms = `https://api.rawg.io/api/platforms?key=070ea00c7ee84dcbba2c14e7c7451e29`
 
 export const getServerSideProps = async () => {
-  const res = await fetch(`${BASE_URL}&page_size=12`)
+  const res = await fetch(`${BASE_URL_games}`)
   const data = await res.json()
   return { props: { data } }
 }
 
-const Home = ({ data }) => {
-  const router = useRouter()
+const GamesWrapper = styled.div`
+  width: 100%;
+  padding: 5px;
+`
+
+const FilterWrapper = styled.div`
+  width: 100%;
+  padding: 10px;
+  display: flex;
+`
+
+const Games = ({ data }) => {
   const [games, setGames] = useState(data.results)
-  const [page, setPage] = useState(parseInt(router.query.page) || 1);
+  const [page, setPage] = useState(1)
+  const [filterOption, setFilterOption] = useState(null)
+  const [platformOption, setPlatformOption] = useState(null)
+  const [platformOptions, setPlatformOptions] = useState(null)
+  const [hasMore, setHasMore] = useState(true)
 
-  const getData = async () => {
+  const getGamesList = async () => {
     const newPage = page + 1
-    setPage(newPage)
+    const params = new URLSearchParams({
+      ...{ page: newPage },
+      ...(filterOption ? { ordering: filterOption.value } : {}),
+      ...(platformOption ? { platforms: platformOption.value } : {})
+    })
 
-    const res = await fetch(`${BASE_URL}&page=${newPage}&page_size=12`)
+    const res = await fetch(BASE_URL_games + '&' + params)
     const data = await res.json()
-    setGames([...games, ...data.results])
+
+    if (data.next) {
+      setGames((!page && (filterOption || platformOption)) ? data.results : [...games, ...data.results])
+    } else {
+      setHasMore(false)
+    }
+    setPage(newPage)
   }
 
+  useEffect(() => {
+    if (filterOption) {
+      setPage(0)
+      setHasMore(true)
+    }
+  }, [filterOption])
+
+  useEffect(() => {
+    if (platformOption) {
+      setPage(0)
+      setHasMore(true)
+    }
+  }, [platformOption])
+
+  useEffect(() => {
+    if (!page) {
+      getGamesList()
+    }
+  }, [page])
+
+
+  useEffect(() => {
+    const getPlatforms = async () => {
+      const res = await fetch(BASE_URL_platforms)
+      const data = await res.json()
+      setPlatformOptions(data.results.map(item => ({ value: item.id, label: item.name })))
+    }
+    getPlatforms()
+  }, [])
+
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Game showcase</title>
-        <meta name="description" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      <header>
-
-      </header>
-
-      <main className={styles.main}>
-        <GameCardList games={games} getMoreGames={getData} />
-      </main>
-    </div>
+    <GamesWrapper>
+      <FilterWrapper>
+        <Select
+          id={1}
+          instanceId={1}
+          inputId={1}
+          defaultValue={'Фильтр'}
+          onChange={setFilterOption}
+          options={[
+            { value: '-rating', label: 'Рейтинг +' },
+            { value: 'rating', label: 'Рейтинг -' },
+            { value: '-released', label: 'Дата релиза +' },
+            { value: 'released', label: 'Дата релиза -' }
+          ]}
+        />
+        <Select
+          id={2}
+          instanceId={2}
+          inputId={2}
+          defaultValue={'Платформа'}
+          onChange={setPlatformOption}
+          options={platformOptions}
+        />
+      </FilterWrapper>
+      <GameCardList games={games} getMoreGames={getGamesList} hasMore={hasMore} />
+    </GamesWrapper>
   )
 }
 
-export default Home
+export default Games

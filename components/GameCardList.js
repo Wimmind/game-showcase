@@ -8,12 +8,12 @@ const GameCardListWrapper = styled.div`
   flex-wrap: wrap;
 `
 
-const GameCardList = ({ games, getMoreGames }) => {
+const GameCardList = ({ games, getMoreGames, hasMore }) => {
   return (
     <InfiniteScroll
       dataLength={games.length}
       next={getMoreGames}
-      hasMore={true}
+      hasMore={hasMore}
       loader={<h4>Loading...</h4>}
     >
       <GameCardListWrapper >
