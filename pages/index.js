@@ -1,7 +1,8 @@
 import GameCardList from '../components/GameCardList'
-import React, { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import styled from 'styled-components'
 import Select from 'react-select'
+import SearchInput from '../components/SearchInput'
 
 const BASE_URL_games = `https://api.rawg.io/api/games?key=070ea00c7ee84dcbba2c14e7c7451e29`
 const BASE_URL_platforms = `https://api.rawg.io/api/platforms?key=070ea00c7ee84dcbba2c14e7c7451e29`
@@ -82,6 +83,7 @@ const Games = ({ data }) => {
 
   return (
     <GamesWrapper>
+      <SearchInput />
       <FilterWrapper>
         <Select
           id={1}
@@ -111,3 +113,22 @@ const Games = ({ data }) => {
 }
 
 export default Games
+
+
+// //queueTime([10,2,3,3], 2)
+
+// function queueTime(arr, n) {
+//   let counter = 0
+//   let cassa = new Array(n).fill(0)
+  
+//   arr.forEach(item=>{
+//     let min = Math.min(...[cassa])
+//      cassa[cassa.findIndex(min)] = cassa[cassa.findIndex(min)] + item
+//   })
+//   console.log(cassa)
+   
+// }
+// //([2,3,10], 2)
+// queueTime([2,3,10],2)
+
+// //[12,3]
