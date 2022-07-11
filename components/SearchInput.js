@@ -1,7 +1,7 @@
-import styled from 'styled-components'
-import { useEffect, useState } from "react"
-
-const BASE_URL_games = `https://api.rawg.io/api/games?key=070ea00c7ee84dcbba2c14e7c7451e29`
+import styled from 'styled-components';
+import { useEffect, useState } from "react";
+import ClickAwayListener from 'react-click-away-listener';
+import GameSearchItem from './GameSearchItem';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -12,11 +12,14 @@ const Wrapper = styled.div`
 const Modal = styled.div`
   width: 100%;
   position: absolute;
-  bottom: -110px;
+  bottom: -375px;
   left: 0px;
   z-index: 1;
-  background-color: blue;
+  background-color: black;
   color: white;
+  height: 370px;
+  border-radius: 24px;
+  padding: 10px;
 `
 
 const Container = styled.div`
@@ -24,36 +27,56 @@ const Container = styled.div`
   flex-direction: column;
 `
 
-const SearchInput = () => {
-  const [searchValue, setSearchValue] = useState('')
-  const [gamesList, setgamesList] = useState([])
+const Input = styled.input`
+  width: 100%;
+  height: 44px;
+  border-radius: 24px;
+  padding: 0 12px;
+`
 
-  const getGames = async () => {
-    const res = await fetch(BASE_URL_games + `&search=${searchValue}`)
-    const data = await res.json()
-    setgamesList(data.results.slice(0, 5))
+const SearchInput = ({ searchUrl }) => {
+  const [searchValue, setSearchValue] = useState('');
+  const [gamesList, setgamesList] = useState([]);
+  const [modal, setModal] = useState(false);
+
+  const searchGames = async () => {
+    const response = await fetch(`${searchUrl}&search=${searchValue}`);
+    const data = await response.json();
+    setgamesList(data.results.slice(0, 5));
   }
+
   useEffect(() => {
     if (searchValue) {
-      getGames()
+      searchGames();
+    } else {
+      setModal(false);
     }
   }, [searchValue])
 
+  useEffect(() => {
+    if (gamesList.length) {
+      setModal(true);
+    }
+  }, [gamesList])
+
   return (
     <Wrapper>
-      <input
+      <Input
         type="text"
-        placeholder="Search"
+        placeholder="Поиск"
         value={searchValue}
         onChange={e => setSearchValue(e.target.value)}
       />
-      {!!gamesList.length && <Modal>
-        <Container>
-          {gamesList.map(item => (
-            <span key={item.id}>{item.slug}</span>
-          ))}
-        </Container>
-      </Modal>}
+      {modal &&
+        <ClickAwayListener onClickAway={() => setModal(false)}>
+          <Modal>
+            <Container>
+              {gamesList.map(item => (
+                <GameSearchItem key={item.id} {...item} />
+              ))}
+            </Container>
+          </Modal>
+        </ClickAwayListener>}
     </Wrapper>
   )
 }

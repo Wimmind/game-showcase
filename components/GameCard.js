@@ -1,36 +1,39 @@
-import styled from 'styled-components'
+import styled from 'styled-components';
+import Image from 'next/image';
+import Link from 'next/link';
 
-const StyledGameCard = styled.a`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: grey;
-  width: 350px;
+const Wrapper = styled.div`
+  padding: 12px;
 `
 
-const StyledGameCardDescription = styled.div`
+const Container = styled.div`
   display: flex;
   flex-direction: column;
+  background-color: hsla(0,0%,100%,.16);
+  cursor: pointer;
+  border-radius: 15px;
+  color: white;
+  text-align: center;
+  width: 320px;
 `
 
-const GameCard = ({ background_image, slug, id, rating, released }) => {
+const GameCard = ({ background_image, slug, rating, released }) => {
   return (
-    <StyledGameCard
-      href=''
-    >
-      <img
-        src={background_image}
-        alt={slug}
-        width={'100%'}
-        height={200}
-        loading='lazy'
-      />
-      <StyledGameCardDescription>
-        <h3>{slug}</h3>
-        <span>rating: {rating}</span>
-        <span>released: {released}</span>
-      </StyledGameCardDescription>
-    </StyledGameCard>
+    <Link href={`/games/${slug}`}>
+      <Wrapper>
+        <Container>
+          <h3>{slug}</h3>
+          <Image
+            src={background_image}
+            alt={slug}
+            width={320}
+            height={240}
+          />
+          <span>rating: {rating}</span>
+          <span>released: {released}</span>
+        </Container>
+      </Wrapper>
+    </Link>
   )
 }
 

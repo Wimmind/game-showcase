@@ -1,37 +1,18 @@
 import '../styles/globals.css'
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import styled from 'styled-components'
+
+const Wrapper = styled.div`
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 20px;
+`
 
 function MyApp({ Component, pageProps }) {
-
-  setTimeout(function () {
-    console.log('s1')
-  }, 0)
-  setTimeout(function () {
-    console.log('s2')
-  }, 1000)
-  new Promise(function (resolve) {
-    console.log('p1')
-    resolve()
-    console.log('p2')
-  }).then(function () {
-    console.log('p3')
-  })
-  console.log('w1')
-  async function test1() {
-    console.log('a1')
-    await test2()
-    console.log('a2')
-  }
-  async function test2() {
-    console.log('a3')
-  }
-  test1()
-  console.log('w2')
-
   return (
     <main>
-      <Component {...pageProps} />
+      <Wrapper>
+        <Component {...pageProps} />
+      </Wrapper>
     </main>
   )
 }
